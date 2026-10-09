@@ -1,0 +1,21 @@
+# Archivos locales y secretos
+venv/
+.venv/
+.env
+.env.*
+!.env.example
+tienda_online/local_settings.py
+
+# Archivos generados por Python, Django y pruebas
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos del editor y del sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
