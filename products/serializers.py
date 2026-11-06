@@ -29,3 +29,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'price',
             'category',
         )
+
+
+class PrecioFinalSerializer(serializers.Serializer):
+    producto = serializers.CharField()
+    categoria = serializers.CharField()
+    precio_original = serializers.DecimalField(max_digits=10, decimal_places=2)
+    precio_final = serializers.DecimalField(max_digits=10, decimal_places=2)

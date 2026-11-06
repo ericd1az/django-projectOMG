@@ -29,7 +29,7 @@ class ProductTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         user = get_user_model().objects.create_user(
-            username='test_user', password='test123'
+            username='test_user', email='test@example.com', password='test123'
         )
         self.client.force_authenticate(user=user)
         self.category = Category.objects.create(name='Electrónica')

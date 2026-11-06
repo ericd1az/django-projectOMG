@@ -5,11 +5,13 @@ venv/
 .env.*
 !.env.example
 tienda_online/local_settings.py
+.local_backup/
 
 # Archivos generados por Python, Django y pruebas
 __pycache__/
 *.py[cod]
 *.sqlite3
+db.sqlite3
 .pytest_cache/
 .coverage
 htmlcov/

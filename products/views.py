@@ -4,9 +4,10 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 
 from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer
+from .serializers import CategorySerializer, PrecioFinalSerializer, ProductSerializer
 from .services import obtener_estrategia
 
 
@@ -23,6 +24,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category']
 
 
+@extend_schema(responses=PrecioFinalSerializer)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def precio_final(request, pk):
