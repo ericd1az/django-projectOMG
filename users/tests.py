@@ -55,6 +55,16 @@ class UserApiTests(TestCase):
         self.assertTrue(nuevo.check_password('NuevaClaveSegura2026!'))
         self.assertNotEqual(nuevo.password, 'NuevaClaveSegura2026!')
 
+    def test_password_debil_devuelve_400(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(reverse('users-list'), {
+            'username': 'nuevo',
+            'email': 'nuevo@example.com',
+            'password': '123',
+        }, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('password', response.data)
+
     def test_editar_otro_usuario_sin_password_conserva_su_hash(self):
         hash_anterior = self.other.password
         self.client.force_authenticate(user=self.admin)
