@@ -36,3 +36,9 @@ class PrecioFinalSerializer(serializers.Serializer):
     categoria = serializers.CharField()
     precio_original = serializers.DecimalField(max_digits=10, decimal_places=2)
     precio_final = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+class CapitalSOAPSerializer(serializers.Serializer):
+    codigo_pais = serializers.CharField()
+    capital = serializers.CharField()
+    servicio = serializers.CharField()

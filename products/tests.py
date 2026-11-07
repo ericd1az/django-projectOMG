@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
+from unittest.mock import patch
+from requests.exceptions import RequestException
 
 from .models import Category, Product
 
@@ -86,3 +88,31 @@ class ProductTestCase(TestCase):
             f'/api/products/{self.product.id}/precio-final/'
         )
         self.assertEqual(response.status_code, 401)
+
+
+class SOAPTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            username='soap_user', email='soap@example.com', password='ClaveSegura2026!'
+        )
+
+    def test_soap_requiere_token(self):
+        response = self.client.get('/api/v1/services/capital/?codigo=MX')
+        self.assertEqual(response.status_code, 401)
+
+    @patch('products.views.obtener_capital', return_value='Mexico City')
+    def test_soap_devuelve_capital(self, mock_soap):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/v1/services/capital/?codigo=mx')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['capital'], 'Mexico City')
+        self.assertEqual(response.data['codigo_pais'], 'MX')
+        mock_soap.assert_called_once_with('MX')
+
+    @patch('products.views.obtener_capital', side_effect=RequestException())
+    def test_soap_reporta_falla_externa(self, mock_soap):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/v1/services/capital/?codigo=MX')
+        self.assertEqual(response.status_code, 502)
+        self.assertNotIn('Traceback', str(response.data))

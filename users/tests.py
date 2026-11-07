@@ -99,3 +99,45 @@ class UserApiTests(TestCase):
         self.client.force_authenticate(user=self.other)
         response = self.client.get(reverse('users-list'))
         self.assertEqual(response.status_code, 403)
+
+    def test_registro_publico_crea_cliente_sin_exponer_password(self):
+        response = self.client.post(reverse('auth-register'), {
+            'username': 'nuevo_cliente',
+            'email': 'nuevo_cliente@example.com',
+            'first_name': 'Ana',
+            'telefono': '6625551234',
+            'password': 'ClaveNueva2026!',
+            'password_confirm': 'ClaveNueva2026!',
+            'is_staff': True,
+        }, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertNotIn('password', response.data)
+        self.assertNotIn('password_confirm', response.data)
+        user = User.objects.get(email='nuevo_cliente@example.com')
+        self.assertTrue(user.check_password('ClaveNueva2026!'))
+        self.assertFalse(user.is_staff)
+        self.assertEqual(user.telefono, '6625551234')
+
+    def test_registro_rechaza_confirmacion_distinta(self):
+        response = self.client.post(reverse('auth-register'), {
+            'username': 'nuevo_cliente',
+            'email': 'nuevo_cliente@example.com',
+            'password': 'ClaveNueva2026!',
+            'password_confirm': 'OtraClave2026!',
+        }, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(User.objects.filter(email='nuevo_cliente@example.com').exists())
+
+    def test_cors_solo_acepta_frontend_local(self):
+        allowed = self.client.options(
+            reverse('auth-token'),
+            HTTP_ORIGIN='http://localhost:5173',
+            HTTP_ACCESS_CONTROL_REQUEST_METHOD='POST',
+        )
+        self.assertEqual(allowed['Access-Control-Allow-Origin'], 'http://localhost:5173')
+        denied = self.client.options(
+            reverse('auth-token'),
+            HTTP_ORIGIN='https://sitio-ajeno.example',
+            HTTP_ACCESS_CONTROL_REQUEST_METHOD='POST',
+        )
+        self.assertNotIn('Access-Control-Allow-Origin', denied)
